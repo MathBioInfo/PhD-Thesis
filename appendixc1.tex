@@ -1,0 +1,133 @@
+\chapter{Appendix for Chapter 3}\label{AppC1}
+\myappendices{Appendix \ref{AppC1} }%\byname{AppA}}
+\section{MATLAB code}
+In this appendix we are presenting MATLAB \cite{MATLAB:R2018b} code for solving PDE model (\ref{pde}). The MATLAB routine \texttt{fiminsearch} was used to maximize the log-likelihood. The AIC criteria was then used to select the best fit model from all the candidate models.  Here we present code for the full model used to fit the steady state solution of \ref{pde} to Data Set 1 \cite{bobay_pervasive_2014}. This code calculates  selection (\ref{sel}) and induction (\ref{indu}) before fitting the steady state solution to the data. 
+The code then maximizes the log-likelihood, which is calculated by the function \texttt{sol\_error}, also provided. 
+\begin{lstlisting}
+clear all
+clc
+global pls 
+load('prophage_sizes.csv')
+pro = prophage_sizes;
+pls = pro;
+pls=pls/1000; % prophage length in kb
+Pinit=  [0.204686704151821   4.099811476589647  15.724017308458798  11.536956361960861  65.822440602842576  27.198192070426217  25.986837564236168   10.382028701765515  41.551463526177145...
+         6.882397692568709  0.007780330712747   0.013293852127858   2.799975078907655   0.949368876463170  44.738263580612710   0.020163712415658]; % inatial guess
+ options = optimset('MaxFunEvals',2000000);
+ Pbest = fminsearch(@sol_error,Pinit);
+ Pbest;
+ P = Pbest;
+\end{lstlisting}
+\begin{lstlisting}
+function err = sol_error(P)
+global pls xs pfinal 
+ts = 0:0.01:200;
+xs = linspace(0, max(pls), 664);
+f= @ (x) abs(P(2))*exp(-(x-(20+abs(P(3)))).^2./abs(P(4)))+ ...
+    abs(P(5))*exp(-(x-(20+abs(P(6)))).^2./abs(P(7)))+ ...
+    abs(P(8))*exp(-(x-(20+abs(P(9)))).^2./abs(P(10))); % gaussian of incoming phages
+g = @(x) abs(P(11))*(-x+max(pls)); % HGT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D= @(x) abs(P(12))*x;
+dD= @(x) abs(P(12));
+%% 
+% Calculating induction curve
+M1min = 20;  % smallest dsDNA phage
+MM= max(pls);
+n = abs(P(13)); % minimum number of genes required for induction
+M1max = max(pls);
+M1 = M1min :0.1: M1max;
+b = zeros(length(M1), length(xs));
+bsum = zeros (1, length(xs));
+i =1;
+while i <= length(M1)
+L = M1(i);    
+m = n+10^-13:0.1: L;
+N= 0:0.1:n;
+b(i, 1:length(N))=0;
+j=1;
+while  j<= length(m)       
+       b(i, length(N)+j) = ((m(j).^m(j)).*((L-n).^(L-n)))./( (L.^L).*(m(j)-n).^(m(j)-n));  % continuous approximation to probability of induction     
+       j= j+1;
+end
+bsum = bsum + f(L).*b(i, :);
+ i = i+1;
+end
+k=1; 
+while k<=length(bsum)
+    p =0:0.1:M1min;
+    if k > length(p)
+    l= k+1 -length(p);
+    L= M1(l);
+    end    
+    L1 = L:0.1:M1max;
+    if k<=length(p)
+        bsum(k)= bsum(k)./sum(f(M1));
+    else
+        bsum(k)= bsum(k)./sum(f(L1));
+    end
+    k=k+1;
+end
+I = abs(P(14)).*(bsum./max(bsum));
+%% 
+% Calculating selection curve
+%% 
+Max = max(pls);
+m = 0:0.1:MM;
+M1min = floor(abs(P(15)));
+M1max = max(cdfx);
+M1 = M1min:0.1:M1max;
+%Max = 66;
+s=  abs(P(15));
+s1 = 0:0.1:s;
+expec = zeros(1, length(m));
+j=length(s1);
+i=1;
+while j <=length(m)
+    M = M1(j-(length(s1)-1)); 
+    M2 = M:0.1:M1max;
+    if j <= length(s1)
+    while i <= length(s1)
+    S = (m(i).*s).*((sum(f(M2)./M2))./sum(f(M2)));
+    expec(i)=S;
+    i = i+1;    
+    end
+    else
+        S = (m(j).*s).*((sum(f(M2)./M2))./sum(f(M2)));
+   expec(j)=S;
+    end
+j = j+1;
+end
+Sel = abs(P(16)).*expec;
+% solving PDE model
+deltat = ts(2)-ts(1);
+deltax = xs(2)-xs(1);
+b = deltat / deltax;
+Q=zeros(length(xs), length(ts));
+f= abs(P(2))*exp(-(xs-(20+abs(P(3)))).^2./abs(P(4)))+ ...
+    abs(P(5))*exp(-(xs-(20+abs(P(6)))).^2./abs(P(7)))+ ...
+    abs(P(8))*exp(-(xs-(20+abs(P(9)))).^2./abs(P(10)));
+for i = 1:length(xs)    
+    if xs(i)<=20
+        f(i) = 0;
+    end
+end
+f = f./trapz(xs, f);
+D= abs(P(12))*xs;
+dD= abs(P(12));
+ for k=1:length(ts)-1
+  for i=2:length(xs)-1
+        
+         Q(i,k+1) = Q(i,k)+deltat.*Q(i,k).*dD+b.*D(i)*(Q(i+1,k)-Q(i,k))+ ...
+         (Sel(i)-I(i)).*Q(i,k).*deltat+P(1).*(f(i))*deltat+g(xs(i)).*Q(i, k).*deltat;
+    
+  end     
+    Q(:,k+1) = Q(:,k+1)./trapz(xs,Q(:,k+1));
+ end
+pfinal = cumtrapz(xs,Q(:,length(ts)));
+pguess = interp1(xs,Q(:,length(ts)),cdfx);
+err = -sum(log(pguess(2:end-1)));
+\end{lstlisting}
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliographystyle{apa}
+\bibliography{refrence}

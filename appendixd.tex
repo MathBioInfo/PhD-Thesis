@@ -1,0 +1,28 @@
+\chapter{Appendix for Chapter 4}\label{AppD}
+\myappendices{Appendix \ref{AppD} }%\byname{AppA}}
+\section{Fixed point and stability analysis of system \ref{systemC}}
+System \ref{systemC} has six equilibrium points, four of which are biologically meaningful (non-negative).  We will use the notation $E_i  = \left(\bar P_{111}, \bar P_{011}, \bar P_{101}, \bar P_{110}, \bar P_{001}, \bar P_{010}, \bar P_{100}, \bar P_{000}\right)$, where $\bar P_{ber}$ denotes the equilibrium value of $P_{ber}(t)$, and  describe these equilibria below.
+
+1) The fixed point $E_0 = \left(0, 0, 0, 0, 0, 0, 0, 1\right)$ corresponds to the complete elimination of prophages from bacterial genomes. This fixed point always exists. The eigenvalues of the corresponding linearized Jacobian are: $0$,   $-r_D$, $r_S - r_D$, $r_S - 2 r_D$,  $-r_D - r_I$, $r_S - 2 r_D -r_I$, $r_L - 2 r_D - r_I$, and $r_L + r_S - 3 r_D -r_I $. This fixed point is stable if $r_S < r_D$ and $r_L < 2\,r_D + r_I$.
+
+2) The fixed point $E_B = (0, 0, 0, 0, 0, 0, \frac{r_S - r_D}{r_S}, \frac{r_D}{r_S})$, corresponds to the existence of beneficial prophage genes only. This fixed point exists only if $r_S > r_D.$ The eigenvalues of the corresponding Jacobian matrix are: $-r_D$, $-r_S$, $r_D - r_S$, 
+$r_D - r_S$, $-r_I - r_S$, $-r_D- r_I$, $r_L - 2 r_D - r_I$, and $r_L - r_D - r_I - r_S $. Thus the conditions for stability are $r_S > r_D$ and $r_L < 2\,r_D + r_I$.
+
+3) The fixed point $E_{LI}$ =  $\left(0, \frac{\alpha\gamma}{r_L\eta}, 0 , 0, \frac{r_D\alpha\gamma}{r_L\eta^2}, \frac{r_D\gamma}{r_L\eta}, 0, \frac{r_D^2\xi}{r_L\eta^2} \right)$, where $\alpha = r_L-r_D$, $\gamma = r_L - 2r_D - r_I$, $\eta = r_L - r_D - r_I$ and $\xi = 2r_L - 2r_D - r_I$. $E_{LI}$ corresponds to the coexistence of lysis and infectious genes, and exists if $r_L > 2r_D + r_I$. Eigenvalues of the corresponding linearized Jacobian are: $r_S-r_D$, $r_S-r_L$, 
+$r_D-r_L$, $r_I+r_S-r_L$, $r_I+r_D-r_L$, $r_S+ r_D+r_I-r_L$, $r_I+2\,r_D-r_L$, and $r_I+2\,r_D-r_L$. These eigenvalues are all negative under the two conditions $r_L > 2r_D + r_I$ and $r_S<r_D$.
+
+4) $E_A$ =  
+    $\left(\frac{\alpha\beta\gamma}{r_Lr_S\eta}, \frac{r_D\alpha\gamma}{r_Lr_S\eta}, \frac{r_D\alpha\beta\gamma}{r_Lr_S\eta^2},
+    \frac{r_D\beta\gamma}{r_Lr_S\eta}
+    \frac{r_D^2\alpha\gamma}{r_Lr_S\eta^2}, 
+    \frac{r_D^2\gamma}{r_Lr_S\eta},
+    \frac{r_D^2\beta\xi}{r_Lr_S\eta^2},
+    \frac{r_D^2\beta\gamma}{r_Lr_S\eta^2}, 
+    \frac{r_D^3\xi}{r_Lr_S\eta^2}  \right)$,
+    where $\beta = r_S - r_D$.
+ The eigenvalues of the Jacobian are: $r_D-r_S$,
+$r_D-r_L$, $2\,r_D-r_L-r_S$, $r_I+2\,r_D-r_L$, $r_D+r_I-r_L$, 
+$r_I+2\,r_D-r_L-r_S$, $r_I+3\,r_D-r_L-r_S$, and $r_I+3\,r_D-r_L-r_S$. These eigenvalues are all negative under the conditions $r_S>r_D$ and $r_L>2r_D + r_I$.
+% \addcontentsline{toc}{chapter}{Bibliography}
+% \bibliographystyle{apa}
+% \bibliography{refrence}
